@@ -1,0 +1,8 @@
+bin/
+obj/
+publish/
+artifacts/
+installer/redist/
+installer/Output/
+*.user
+.vs/

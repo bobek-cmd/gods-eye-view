@@ -1,0 +1,50 @@
+name: DualSense Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'DualSenseBridge/**'
+      - '.github/workflows/dualsense-bridge.yml'
+  pull_request:
+    paths:
+      - 'DualSenseBridge/**'
+      - '.github/workflows/dualsense-bridge.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dualsense-bridge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  installer:
+    name: Build installer
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: DualSenseBridge
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Test, publish and package
+        run: ./build/build-installer.ps1 -Version "1.0.${{ github.run_number }}"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: DualSenseBridge-Setup
+          path: DualSenseBridge/artifacts/installer/*.exe
+          if-no-files-found: error

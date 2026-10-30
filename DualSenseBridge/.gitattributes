@@ -1,0 +1,3 @@
+# Windows batch files need CRLF; binary assets must never be rewritten.
+*.cmd text eol=crlf
+*.ico binary
